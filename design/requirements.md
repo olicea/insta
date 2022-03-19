@@ -50,17 +50,19 @@ workflows
 
 # system design
 
+the user call s one of tha main workflows which lands on a web server and might read databases
 
+```
 User | ----->  NLB |    web servers  ----->  database image metadata, user metadata
 /post |                              ----->  database image data (immutable blobs)
 /feed | 
-
+```
 
 
 # API Design
 
 Contracts
-
+```
 User:
     UserId: long
     Name: string
@@ -78,7 +80,7 @@ Post:
     Title: string
     Content: binary
     ContentType: int //could be: text, image, video
-
+```
 
 # Database Design
 
@@ -92,8 +94,7 @@ Relational database, due to the relationship between users and users they follow
 posting an image
 
 image_id = upload image into blob storage (id) 
-
-
+```
 insert 
 into    posts
 set     userId = userid
@@ -101,16 +102,18 @@ set     userId = userid
         imageId = image_id
         ...
         createdtime = now()
-
+```
 
 
 querying feed
+```
     select all posts
     from all users this user follows
     from this user
     order by time 
     take number_od_posts_per_page
     skip number_of_posts_per_page * page_number
+```
 
 
 index users by id
@@ -138,12 +141,13 @@ index follows by userid
  * POST post/create
     creates a post for a specific user
 
-    {
+```    {
         "userId" : 1 
         "title" : "My first post"
         "content" : "This is my first post"
         "contentType" : "text"
     }
+
 
     response HTTP 201
     {
@@ -154,6 +158,7 @@ index follows by userid
         "contentType" : "text"
         "content" : 
     }
+```
 
     HTTP 400 when a bad user is used
     HTTP 400 when a long title, or long description is used
@@ -167,23 +172,24 @@ index follows by userid
 
 * FOLLOW POST user/follow{userId}/{userId}
 
+```
     HTTP 201 Created
     {
         "subscriptionId" : 1
         "followerId" : 1
         "followingId" : 2
     }
-
+```
 
 * UNFOLLOW DELETE user/follow{userId}/{userId}
-
+```
     HTTP 204 No Content 
     {
         "subscriptionId" : 1
         "followerId" : 1
         "followingId" : 2
     }
-
+```
 
 * GET feed/{userId}
 
@@ -193,10 +199,9 @@ index follows by userid
     HTTP 404 when the {userId} does not exit
 
 
-
 # Availability
 
-
+TODO:
 * Separate web api from storage api
 * Separate upload and download operations (microservices)
 * Multiple instances of upload and download services
